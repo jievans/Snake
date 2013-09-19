@@ -1,6 +1,6 @@
 #board {
-  height: 800px;
-  width: 800px;
+  height: 400px;
+  width: 400px;
   background-color: white;
   display: block;
   border-style: solid;
@@ -10,11 +10,10 @@
 .cell {
 
   display: inline-block;
-  height:8px;
-  width: 8px;
+  height: 18px;
+  width: 18px;
   margin-right: 2px;
   margin-bottom: 2px;
   background-color: white;
-
 }
 

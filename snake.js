@@ -4,9 +4,9 @@
     this.board = board;
     this.snake = new Snake(this);
     this.cellWidth = 10;
-    this.dimensions = {x: board.width() / 10,
-                       y: board.height() / 10 };
-    this.cellNum = 80;
+    this.dimensions = {x: board.width() / 20,
+                       y: board.height() / 20 };
+    this.cellNum = 20;
     this.apples = [];
     this.generateApples();
     this.score = 0;
@@ -16,8 +16,8 @@
     var $board = this.board;
     var width = this.cellWidth;
     $board.empty();
-    for(var row = 0; row < 80; row++){
-      for(var column = 0; column < 80; column++){
+    for(var row = 0; row < 20; row++){
+      for(var column = 0; column < 20; column++){
         $cell = $('<div class="cell"></div>');
         $cell.addClass("row" + row);
         $cell.addClass("col" + column);
@@ -130,6 +130,10 @@
       var segment = body[i];
       if (headSeg.x === segment.x && headSeg.y === segment.y){
         lose = true;
+        var cell = this.game.board
+                             .find(".row" + segment.y)
+                             .filter(".col" + segment.x);
+        cell.css('background-color', 'orange');
       }
     }
     if(headSeg.x < 0 ||
@@ -228,8 +232,8 @@
 
 
 function DrawBoard(){
-  for(var row = 0; row < 80; row++){
-    for(var column = 0; column < 80; column++){
+  for(var row = 0; row < 40; row++){
+    for(var column = 0; column < 40; column++){
       $cell = $('<div class="cell"></div>');
       $cell.addClass("row" + row);
       $cell.addClass("col" + column);
