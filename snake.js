@@ -27,6 +27,17 @@
 
    //$('#board').find('.row0').filter('.col0').css('background-color', 'red');
   };
+  
+  Game.prototype.reset = function(){
+    this.board.empty();
+    var game = new Game(this.board);
+    $("#score").html("0");
+    $("#game-over").hide();
+    game.drawBoard();
+    game.snake.draw();
+    game.drawApples();
+    game.initLooping();  
+  };
 
   Game.prototype.step = function(){
     //this.drawBoard();
@@ -53,7 +64,9 @@
       var apple = apples[i];
       if(apple.isEaten()){
         delete apple;
+        // should pull score out into step
         this.score++;
+        $("#score").html(this.score);
         apples[i] = Apple.generateRandomApple(this);
         eaten = true;
       }
@@ -72,13 +85,57 @@
   Game.prototype.start = function(){
     var that = this;
     this.drawBoard();
+    this.snake.draw();
+    this.drawApples();
+    var sToStart = function(event){
+      if(event.keyCode == 83){
+        $("#message").empty();
+        that.initLooping();
+        $("body").off("keydown", sToStart); 
+      } 
+    };
+    $("body").on("keydown", sToStart);
+  };
+  
+  Game.prototype.initLooping = function(){
+    var that = this;
+    var intervalId = that.startLoop();
+    var paused = false;
+    $("body").on("keydown", function(event){
+      if( event.keyCode == 32 ){
+        if (paused == true){
+          intervalId = that.startLoop();
+          $("#paused").hide();
+          paused = false;
+        } else {
+          clearInterval(intervalId);
+          $("#paused").show();
+          paused = true;
+        }
+      }
+    });
+  };
+  
+  Game.prototype.startLoop = function(){
+    var that = this;
     var intervalId = window.setInterval(function(){
       go = that.step();
       if(!go){
         clearInterval(intervalId);
+        $("#game-over").show();
+        $("#message").html("hit r to restart the game");
+        var rToRestart = function(event){
+          if(event.keyCode == 82){
+            $("#message").empty();
+            that.reset();
+            $("body").off("keydown", rToRestart); 
+          } 
+        };
+        $("body").on("keydown", rToRestart);    
       }
     }, 100);
-  };
+    return intervalId;
+  },
 
   Game.prototype.generateApples = function(){
     for(var i = 0; i < 3; i++){
@@ -141,7 +198,13 @@
        headSeg.x === this.game.dimensions.x ||
        headSeg.y === this.game.dimensions.y){
          lose = true;
-       }
+         var previousPosition = this.body[this.body.length - 2];
+         var cell = this.game.board
+                              .find(".row" + previousPosition.y)
+                              .filter(".col" + previousPosition.x);
+         
+         cell.css('background-color', 'orange');
+       }  
     return lose;
   };
 
@@ -229,28 +292,6 @@
 })();
 
 
-
-
-function DrawBoard(){
-  for(var row = 0; row < 40; row++){
-    for(var column = 0; column < 40; column++){
-      $cell = $('<div class="cell"></div>');
-      $cell.addClass("row" + row);
-      $cell.addClass("col" + column);
-      $('#board').append($cell);
-    }
-  }
-
- $('#board').find('.row0').filter('.col0').css('background-color', 'red');
-}
-
-// $(function(){
-//
-//  // new Game().start();
-//
-//  DrawBoard();
-//
-// });
 
 $(function(){
   new Game($('#board')).start();
