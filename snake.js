@@ -1,6 +1,27 @@
 (function(){
+  
+  var currentGame = null;
+  var paused = false;
+  
+  $(function(){  
+    $("body").on("keydown", function(event){
+        if( event.keyCode == 32 ){
+          console.log(paused);
+          if (paused == true){
+            currentGame.startLoop();
+            $("#paused").hide();
+            paused = false;
+          } else if ( currentGame.intervalId ) {
+            clearInterval(currentGame.intervalId);
+            $("#paused").show();
+            paused = true;
+          }
+        }
+      });
+  });
 
   function Game(board){
+    currentGame = this;
     this.board = board;
     this.snake = new Snake(this);
     this.cellWidth = 10;
@@ -11,6 +32,22 @@
     this.generateApples();
     this.score = 0;
   }
+  
+  Game.prototype.listenForPause = function(){
+    $("body").on("keydown", function(event){
+        if( event.keyCode == 32 ){
+          if (paused == true){
+            currentGame.startLoop();
+            $("#paused").hide();
+            paused = false;
+          } else {
+            clearInterval(currentGame.intervalId);
+            $("#paused").show();
+            paused = true;
+          }
+        }
+    });
+  },
 
   Game.prototype.drawBoard = function(){
     var $board = this.board;
@@ -98,28 +135,13 @@
   };
   
   Game.prototype.initLooping = function(){
-    var that = this;
-    var intervalId = that.startLoop();
-    var paused = false;
-    $("body").on("keydown", function(event){
-      if( event.keyCode == 32 ){
-        if (paused == true){
-          intervalId = that.startLoop();
-          $("#paused").hide();
-          paused = false;
-        } else {
-          clearInterval(intervalId);
-          $("#paused").show();
-          paused = true;
-        }
-      }
-    });
+    this.startLoop();
   };
   
   Game.prototype.startLoop = function(){
     var that = this;
     var intervalId = window.setInterval(function(){
-      go = that.step();
+      var go = that.step();
       if(!go){
         clearInterval(intervalId);
         $("#game-over").show();
@@ -134,7 +156,7 @@
         $("body").on("keydown", rToRestart);    
       }
     }, 100);
-    return intervalId;
+    this.intervalId = intervalId;
   },
 
   Game.prototype.generateApples = function(){
