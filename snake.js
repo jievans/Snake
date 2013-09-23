@@ -1,24 +1,8 @@
 (function(){
   
   var currentGame = null;
+  var firstGame = true;
   var paused = false;
-  
-  $(function(){  
-    $("body").on("keydown", function(event){
-        if( event.keyCode == 32 ){
-          console.log(paused);
-          if (paused == true){
-            currentGame.startLoop();
-            $("#paused").hide();
-            paused = false;
-          } else if ( currentGame.intervalId ) {
-            clearInterval(currentGame.intervalId);
-            $("#paused").show();
-            paused = true;
-          }
-        }
-      });
-  });
 
   function Game(board){
     currentGame = this;
@@ -31,16 +15,22 @@
     this.apples = [];
     this.generateApples();
     this.score = 0;
+    
+    if(firstGame){
+      this.listenForPause();
+      firstGame = false;
+    }
   }
   
   Game.prototype.listenForPause = function(){
     $("body").on("keydown", function(event){
         if( event.keyCode == 32 ){
+          console.log(paused);
           if (paused == true){
             currentGame.startLoop();
             $("#paused").hide();
             paused = false;
-          } else {
+          } else if ( currentGame.intervalId ) {
             clearInterval(currentGame.intervalId);
             $("#paused").show();
             paused = true;
